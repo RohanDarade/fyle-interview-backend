@@ -1,4 +1,5 @@
 import pytest
+from core.models.teachers import Teacher
 import json
 from tests import app
 
@@ -66,3 +67,9 @@ def h_principal():
     }
 
     return headers
+
+
+@pytest.fixture
+def teachers():
+    # Query the already existing teachers from the database
+    return Teacher.query.all()

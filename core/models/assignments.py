@@ -79,8 +79,18 @@ class Assignment(db.Model):
         assignment = Assignment.get_by_id(_id)
         assertions.assert_found(assignment, 'No assignment with this id was found')
         assertions.assert_valid(grade is not None, 'assignment with empty grade cannot be graded')
-        assertions.assert_valid(assignment.teacher_id == auth_principal.teacher_id,
-                                'You are not authorized to grade this assignment')
+
+        assertions.assert_valid(assignment.state != AssignmentStateEnum.DRAFT, 'Assignment is in draft state, it cannot be graded')
+
+        if hasattr(auth_principal, 'teacher_id') and auth_principal.teacher_id:
+            assertions.assert_valid(
+                assignment.teacher_id == auth_principal.teacher_id,
+                'You are not authorized to grade this assignment'
+            )
+
+        if hasattr(auth_principal, 'principal_id') and auth_principal.principal_id:
+            pass
+
         assignment.grade = grade
         assignment.state = AssignmentStateEnum.GRADED
         db.session.flush()
@@ -90,6 +100,7 @@ class Assignment(db.Model):
     @classmethod
     def get_assignments_by_student(cls, student_id):
         return cls.filter(cls.student_id == student_id).all()
+    
     # Bug Fix: Added this method to get assignments by teacher
     @classmethod
     def get_assignments_by_teacher(cls, teacher_id):

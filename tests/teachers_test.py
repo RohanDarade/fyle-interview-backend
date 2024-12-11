@@ -99,3 +99,16 @@ def test_grade_assignment_draft_assignment(client, h_teacher_1):
     data = response.json
 
     assert data['error'] == 'FyleError'
+
+# New tests added to increase to coverage
+
+def test_get_assignments_invalid_auth(client):
+    response = client.get('/teacher/assignments', headers={})
+    assert response.status_code == 401  # Unauthorized access
+    data = response.json
+    assert data['error'] == 'FyleError'
+
+
+def test_invalid_endpoint(client, h_teacher_1):
+    response = client.get('/teacher/assignments/invalid', headers=h_teacher_1)
+    assert response.status_code == 404  # Not Found

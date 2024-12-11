@@ -1,5 +1,6 @@
 from flask import Blueprint
 from core import db
+from core.libs import assertions
 from core.apis import decorators
 from core.apis.responses import APIResponse
 from core.models.assignments import Assignment
@@ -24,6 +25,7 @@ def upsert_assignment(p, incoming_payload):
     """Create or Edit an assignment"""
     assignment = AssignmentSchema().load(incoming_payload)
     assignment.student_id = p.student_id
+    assertions.assert_valid(assignment.content is not None, 'Content cannot be null or empty')
 
     upserted_assignment = Assignment.upsert(assignment)
     db.session.commit()
@@ -37,6 +39,12 @@ def upsert_assignment(p, incoming_payload):
 def submit_assignment(p, incoming_payload):
     """Submit an assignment"""
     submit_assignment_payload = AssignmentSubmitSchema().load(incoming_payload)
+    assignment = Assignment.get_by_id(submit_assignment_payload.id)
+    # assertions.assert_valid(assignment is not None, 'Assignment not found')
+    print(f"Assignment state: {assignment.state}")  # Debugging line
+    
+    # Ensure that assignment is not already submitted
+    assertions.assert_valid(assignment.state != 'SUBMITTED', 'only a draft assignment can be submitted')
 
     submitted_assignment = Assignment.submit(
         _id=submit_assignment_payload.id,
