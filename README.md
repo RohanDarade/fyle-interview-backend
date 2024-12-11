@@ -56,3 +56,22 @@ pytest -vvv -s tests/
 # pytest --cov
 # open htmlcov/index.html
 ```
+
+## Docker Commands
+
+### Start Server
+
+```
+docker-compose up -d --build 
+```
+### Reset DB
+
+```
+docker-compose run --rm flask rm core/store.sqlite3
+docker-compose run --rm flask flask db upgrade -d core/migrations 
+```
+
+### Run Tests
+```
+docker-compose run --rm flask pytest -vvv -s tests/
+```

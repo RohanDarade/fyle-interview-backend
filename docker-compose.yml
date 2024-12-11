@@ -1,0 +1,13 @@
+version: "2"
+services:
+
+ flask:
+    container_name: flask
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes: ["./:/app/"]
+    ports:
+      - "8000:8000"
+    environment:
+      FLASK_ENV: development
